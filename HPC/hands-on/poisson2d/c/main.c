@@ -26,51 +26,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 #ifndef NX
-#define NX 1024
+#  define NX 1024
 #endif
 #ifndef NY
-#define NY 16
+#  define NY 16
 #endif
 #define NMAX 200000
 #define EPS 1e-5
 
-int solver(double *, double *, int, int, double, int);
+int
+solver(double *, double *, int, int, double, int);
 
-int main()
-{
-    double *v;
-    double *f;
+int
+main() {
+  double *v;
+  double *f;
 
-    // Allocate memory
-    v = (double *) malloc(NX * NY * sizeof(double));
-    f = (double *) malloc(NX * NY * sizeof(double));
+  // Allocate memory
+  v = (double *)malloc(NX * NY * sizeof(double));
+  f = (double *)malloc(NX * NY * sizeof(double));
 
-    // Initialise input
-    for (int iy = 0; iy < NY; iy++)
-        for (int ix = 0; ix < NX; ix++)
-        {
-            v[NX*iy+ix] = 0.0;
+  // Initialise input
+  for (int iy = 0; iy < NY; iy++)
+      for (int ix = 0; ix < NX; ix++) {
+        v[NX * iy + ix] = 0.0;
 
-            const double x = 2.0 * ix / (NX - 1.0) - 1.0;
-            const double y = 2.0 * iy / (NY - 1.0) - 1.0;
-            f[NX*iy+ix] = sin(x + y);
-        }
+        const double x  = 2.0 * ix / (NX - 1.0) - 1.0;
+        const double y  = 2.0 * iy / (NY - 1.0) - 1.0;
+        f[NX * iy + ix] = sin(x + y);
+      }
 
-    // Call solver
-    solver(v, f, NX, NY, EPS, NMAX);
+  // Call solver
+  solver(v, f, NX, NY, EPS, NMAX);
 
-    //for (int iy = 0; iy < NY; iy++)
-    //    for (int ix = 0; ix < NX; ix++)
-    //        printf("%d,%d,%e\n", ix, iy, v[iy*NX+ix]);
+  // for (int iy = 0; iy < NY; iy++)
+  //     for (int ix = 0; ix < NX; ix++)
+  //         printf("%d,%d,%e\n", ix, iy, v[iy*NX+ix]);
 
-    // Clean-up
-    free(v);
-    free(f);
+  // Clean-up
+  free(v);
+  free(f);
 
-    return 0;
+  return 0;
 }

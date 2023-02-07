@@ -29,79 +29,72 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-int solver(double *v, double *f, int nx, int ny, double eps, int nmax)
-{
-    int n = 0;
-    double e = 2. * eps;
-    double *vp;
+int
+solver(double *v, double *f, int nx, int ny, double eps, int nmax) {
+  int     n = 0;
+  double  e = 2. * eps;
+  double *vp;
 
-    vp = (double *) malloc(nx * ny * sizeof(double));
+  vp = (double *)malloc(nx * ny * sizeof(double));
 
-    while ((e > eps) && (n < nmax))
-    {
-        e = 0.0;
+    while ((e > eps) && (n < nmax)) {
+      e = 0.0;
 
-        for( int ix = 1; ix < (nx-1); ix++ )
-        {
-            for (int iy = 1; iy < (ny-1); iy++)
-            {
-                double d;
+        for (int ix = 1; ix < (nx - 1); ix++) {
+            for (int iy = 1; iy < (ny - 1); iy++) {
+              double d;
 
-                vp[iy*nx+ix] = -0.25 * (f[iy*nx+ix] -
-                    (v[nx*iy     + ix+1] + v[nx*iy     + ix-1] +
-                     v[nx*(iy+1) + ix  ] + v[nx*(iy-1) + ix  ]));
+              vp[iy * nx + ix] =
+                -0.25 * (f[iy * nx + ix] - (v[nx * iy + ix + 1] + v[nx * iy + ix - 1] +
+                                            v[nx * (iy + 1) + ix] + v[nx * (iy - 1) + ix]));
 
-                d = fabs(vp[nx*iy+ix] - v[nx*iy+ix]);
-                e = (d > e) ? d : e;
-            }
-        }
-        
-        // Update v and compute error as well as error weight factor
-
-        double w = 0.0;
-
-        for (int ix = 1; ix < (nx-1); ix++)
-        {
-            for (int iy = 1; iy < (ny-1); iy++)
-            {
-                v[nx*iy+ix] = vp[nx*iy+ix];
-                w += fabs(v[nx*iy+ix]);
+              d = fabs(vp[nx * iy + ix] - v[nx * iy + ix]);
+              e = (d > e) ? d : e;
             }
         }
 
-        for (int ix = 1; ix < (nx-1); ix++)
-        {
-            v[nx*0      + ix] = v[nx*(ny-2) + ix];
-            v[nx*(ny-1) + ix] = v[nx*1      + ix];
-            w += fabs(v[nx*0+ix]) + fabs(v[nx*(ny-1)+ix]);
+      // Update v and compute error as well as error weight factor
+
+      double w = 0.0;
+
+        for (int ix = 1; ix < (nx - 1); ix++) {
+            for (int iy = 1; iy < (ny - 1); iy++) {
+              v[nx * iy + ix] = vp[nx * iy + ix];
+              w += fabs(v[nx * iy + ix]);
+            }
         }
 
-        for (int iy = 1; iy < (ny-1); iy++)
-        {
-            v[nx*iy + 0]      = v[nx*iy + (nx-2)];
-            v[nx*iy + (nx-1)] = v[nx*iy + 1     ];
-            w += fabs(v[nx*iy+0]) + fabs(v[nx*iy+(nx-1)]);
+        for (int ix = 1; ix < (nx - 1); ix++) {
+          v[nx * 0 + ix]        = v[nx * (ny - 2) + ix];
+          v[nx * (ny - 1) + ix] = v[nx * 1 + ix];
+          w += fabs(v[nx * 0 + ix]) + fabs(v[nx * (ny - 1) + ix]);
         }
 
-        w /= (nx * ny);
-        e /= w;
-        
-        //if ((n % 10) == 0)
-        //    printf("%5d, %0.4e\n", n, e);
+        for (int iy = 1; iy < (ny - 1); iy++) {
+          v[nx * iy + 0]        = v[nx * iy + (nx - 2)];
+          v[nx * iy + (nx - 1)] = v[nx * iy + 1];
+          w += fabs(v[nx * iy + 0]) + fabs(v[nx * iy + (nx - 1)]);
+        }
 
-        n++;
+      w /= (nx * ny);
+      e /= w;
+
+      // if ((n % 10) == 0)
+      //     printf("%5d, %0.4e\n", n, e);
+
+      n++;
     }
 
-    free(vp);
+  free(vp);
 
-    if (e < eps)
-        printf("Converged after %d iterations (nx=%d, ny=%d, e=%.2e)\n", n, nx, ny, e);
-    else
-        printf("ERROR: Failed to converge\n");
+  if (e < eps)
+    printf("Converged after %d iterations (nx=%d, ny=%d, e=%.2e)\n", n, nx, ny, e);
+  else
+    printf("ERROR: Failed to converge\n");
 
-    return (e < eps ? 0 : 1);
+  return (e < eps ? 0 : 1);
 }
